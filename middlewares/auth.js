@@ -41,8 +41,8 @@ exports.payPalAuth = async (_tokenId, _orderId, _ifRealPay = true) => {
   }
 };
 
-//auth Admin
-exports.authAdmin = (req, res, next) => {
+//auth system admin
+exports.authSystemAdmin = (req, res, next) => {
   let token = req.header("x-api-key");
   if (!token) {
     return res
@@ -52,7 +52,7 @@ exports.authAdmin = (req, res, next) => {
   try {
     let decodeToken = jwt.verify(token, secret.jwtSecret);
     // check if user role is admin
-    if (decodeToken.role == "super_admin") {
+    if (decodeToken.role == "system_admin") {
       req.tokenData = decodeToken;
       next();
     } else {
@@ -67,7 +67,7 @@ exports.authAdmin = (req, res, next) => {
   }
 };
 
-//auth Store
+//auth store admin
 exports.authStoreAdmin = async (req, res, next) => {
   let token = req.header("x-api-key");
   let idStore = req.header("idStore");

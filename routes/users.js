@@ -7,7 +7,7 @@ const {
 } = require("../models/userModel");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { auth, authAdmin } = require("../middlewares/auth");
+const { auth, authSystemAdmin } = require("../middlewares/auth");
 const { pick } = require("lodash");
 
 router.get("/", (req, res) => {
@@ -112,12 +112,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// can change the role of user to admin or user , must be admin in this endpoint
-router.patch("/changeRole/:userId/:role", authAdmin, async (req, res) => {
+// can change the role of user to admin user or delivery, must be admin in this endpoint
+router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
   let userId = req.params.userId;
   let role = req.params.role;
   try {
-    // prevent from user to chanch himself or the first admin
+    // prevent from user to changch himself or the first admin
     if (userId != req.tokenData._id && userId != "61ee907a96a80382f70b873e") {
       let data = await UserModel.updateOne({ _id: userId }, { role: role });
       res.json(data);
@@ -129,9 +129,20 @@ router.patch("/changeRole/:userId/:role", authAdmin, async (req, res) => {
     return res.status(500).json(err);
   }
 });
+//applying for a delivery position
+router.patch("/applyingForDelivery", auth, async (req, res) => {
+  try {
+    let data = await UserModel.updateOne({ _id: req.tokenData._id }, { role: "apply_For_delivery" })
+    res.json(data);
+  } 
+  catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
 
 // del user - DELETE
-router.delete("/delete/:delId", authAdmin, async (req, res) => {
+router.delete("/delete/:delId", authSystemAdmin, async (req, res) => {
   let delId = req.params.delId;
   try {
     if (delId != req.tokenData._id && delId != "624ec1afab89e9f16e36cb6c") {

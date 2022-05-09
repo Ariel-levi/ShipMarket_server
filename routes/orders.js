@@ -1,5 +1,5 @@
 const express = require("express");
-const { auth, authAdmin, payPalAuth } = require("../middlewares/auth");
+const { auth,  payPalAuth, authSystemAdmin } = require("../middlewares/auth");
 const { OrderModel, validateOrder } = require("../models/orderModel");
 const { ProductModel } = require("../models/productsModel");
 const { UserModel } = require("../models/userModel");
@@ -20,7 +20,7 @@ router.get("/userOrder", auth, async (req, res) => {
     return res.status(500).json(error);
   }
 });
-router.get("/allOrders", authAdmin, async (req, res) => {
+router.get("/allOrders", authSystemAdmin, async (req, res) => {
   let perPage = req.query.perPage || 5;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
   let sort = req.query.sort || "_id";
@@ -140,7 +140,7 @@ router.patch("/orderPaid", auth, async (req, res) => {
 
 // route update order status
 // ?status =
-router.patch("/:orderId", authAdmin, async (req, res) => {
+router.patch("/:orderId", authSystemAdmin, async (req, res) => {
   let status = req.query.status || "pending";
   let orderId = req.params.orderId;
   try {
@@ -153,7 +153,7 @@ router.patch("/:orderId", authAdmin, async (req, res) => {
   }
 });
 
-router.delete("/:delId", authAdmin, async (req, res) => {
+router.delete("/:delId", authSystemAdmin, async (req, res) => {
   let orderId = req.params.delId;
   try {
     let data = await OrderModel.deleteOne({ _id: orderId });

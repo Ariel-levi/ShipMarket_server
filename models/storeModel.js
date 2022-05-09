@@ -7,6 +7,9 @@ let storeSchema = new mongoose.Schema({
   img_url:String,
   address:String, 
   admin_id:String,
+  status:{
+    type:String,default:"pending"
+  },
   date_created:{
     type:Date,default:Date.now()
   },
