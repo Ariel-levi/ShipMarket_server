@@ -31,6 +31,7 @@ router.patch("/add_remove/:prodId", auth, async(req, res) => {
         //get current favs_ar from user
         let user = await UserModel.findOne({ _id:req.tokenData._id })
         let favs_ar = user.favs_ar
+        let inFavs = false
         console.log(favs_ar);
         if (favs_ar.includes(prodId)) {
             //remove the product form favorites list
@@ -41,9 +42,11 @@ router.patch("/add_remove/:prodId", auth, async(req, res) => {
             favs_ar.unshift(prodId)
             //limit to 40 items
             favs_ar.splice(40, favs_ar.length)
+            inFavs = true
             
         }
         let data = await UserModel.updateOne({_id:req.tokenData._id}, {favs_ar:favs_ar})
+        data.inFavs = inFavs
         res.json(data)
     } catch (error) {
         res.status(500).json({msg:error})
