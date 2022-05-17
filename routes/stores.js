@@ -14,8 +14,10 @@ router.get("/", async (req, res) => {
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
   let sort = req.query.sort || "_id";
   let reverse = req.query.reverse == "yes" ? 1 : -1;
+  let status = req.query.status 
   try {
-    let data = await StoreModel.find({})
+    let filter = status? {status} : {}
+    let data = await StoreModel.find(filter)
       .limit(perPage)
       .skip(page * perPage)
       .sort({ [sort]: reverse });
@@ -66,11 +68,13 @@ router.get("/single/:id", async (req, res) => {
 
 // get amount of stores
 router.get("/amount", async (req, res) => {
+  let status = req.query.status
+  let cat = req.query.cat || null;
   try {
-    let cat = req.query.cat || null;
-    objFind = cat ? { cat_short_id: cat } : {};
+    let filter = status? { status } : {}
+    // objFind = cat ? { cat_short_id: cat } : {};
     // countDocuments -> return just the amount of documents in the collections
-    let data = await StoreModel.countDocuments(objFind);
+      let data = await StoreModel.countDocuments(filter);
     res.json({ amount: data });
   } catch (err) {
     console.log(err);
@@ -91,7 +95,11 @@ router.post("/", auth, async (req, res) => {
     store.short_id = await genShortId(StoreModel);
     await store.save();
     res.status(201).json(store);
-  } catch (err) {
+  }
+  catch (err) {
+    if (err.code == 11000) { 
+      return res.status(400).json( {...err, message:"store name already taken"});
+    }
     console.log(err);
     return res.status(500).json(err);
   }
@@ -109,15 +117,14 @@ router.put("/:id", authStoreAdmin, async (req, res) => {
     return res.status(500).json(err);
   }
 });
-
-// aprove store request
-router.patch("/approval/:idStore", authSystemAdmin, async (req, res) => {
+// change store status 
+router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
   try {
-    let idStore = req.params.idStore;
-    let data = await StoreModel.updateOne(
-      { _id: idStore },
-      { status: "approved" }
-    );
+    let idStore = req.params.idStore
+    let store = await StoreModel.findOne({ _id: idStore})
+    let status = store.status === "pending"? "active" : "pending";
+    let data = await StoreModel.updateOne({ _id: idStore }, {status})
+    data.status = status
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
