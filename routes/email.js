@@ -1,25 +1,65 @@
 const express = require("express");
-const { sendEmailPay, sendEmail } = require("../middlewares/sendEmail");
+const { sendContactEmail } = require("../middlewares/sendEmail");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.json({ msg: "email router works" })
-})
+  res.json({ msg: "email router works" });
+});
 
-router.post("/contact", (req, res) => {
+router.post("/contact", async (req, res) => {
   try {
-    if (req.body.email.length < 3 || req.body.name.length < 2) {
-      return res.status(400).jsom({ msg: "you must provide a valid name and email address" })
+    if (
+      req.body.email?.length < 3 ||
+      req.body.name?.length < 2 ||
+      req.body.subject?.length < 3
+    ) {
+      return res
+        .status(400)
+        .json({ msg_err: "You must send valid name ,subject and email 1" });
     }
-    if (sendEmail(req.body)) {
-      res.json({ msg: "email sent", status: "ok" })
+    if (sendContactEmail(req.body)) {
+      res.json({ msg: "email sended", status: "ok" });
+    } else {
+      return res
+        .status(400)
+        .json({ msg_err: "You must send valid name ,subject and email 2" });
     }
-    else {
-      return res.status(400).jsom({ msg: "you must provide a valid name and email address" })
-    }
-  } catch (error) {
-    return res.status(500).jsom({ msg: "you must provide a valid name and email address" })
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(400)
+      .json({ msg_err: "You must send valid name ,subject and email 3" });
   }
-})
+});
+
+// router.post("/contact", async (req, res) => {
+//   try {
+//     if (
+//       req.body.email?.length < 3 ||
+//       req.body.name?.length < 2 ||
+//       req.body.subject?.length < 3
+//     ) {
+//       return res
+//         .status(400)
+//         .json({ msg_err: "You must send valid name ,subject and email 1" });
+//     }
+//     // if (!sendEmail(req.body)) {
+//     const messageSend = await sendEmail(req.body);
+//     console.log(messageSend);
+
+//     if (messageSend) {
+//       res.json({ msg: "email sended", status: "ok" });
+//     } else {
+//       return res
+//         .status(400)
+//         .json({ msg_err: "You must send valid name ,subject and email 2" });
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     return res
+//       .status(400)
+//       .json({ msg_err: "You must send valid name ,subject and email 3" });
+//   }
+// });
 
 module.exports = router;

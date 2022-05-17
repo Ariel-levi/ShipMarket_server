@@ -129,13 +129,16 @@ router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
     return res.status(500).json(err);
   }
 });
+
 //applying for a delivery position
 router.patch("/applyingForDelivery", auth, async (req, res) => {
   try {
-    let data = await UserModel.updateOne({ _id: req.tokenData._id }, { role: "apply_For_delivery" })
+    let data = await UserModel.updateOne(
+      { _id: req.tokenData._id },
+      { role: "apply_For_delivery" }
+    );
     res.json(data);
-  } 
-  catch (err) {
+  } catch (err) {
     console.log(err);
     return res.status(500).json(err);
   }

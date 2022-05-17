@@ -1,5 +1,9 @@
 const express = require("express");
-const { auth, authStoreAdmin, authSystemAdmin } = require("../middlewares/auth");
+const {
+  auth,
+  authStoreAdmin,
+  authSystemAdmin,
+} = require("../middlewares/auth");
 const { genShortId } = require("../misc/genShortId");
 const { StoreModel, validateStore } = require("../models/storeModel");
 const router = express.Router();
@@ -93,7 +97,6 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-
 //Edit  Store
 router.put("/:id", authStoreAdmin, async (req, res) => {
   try {
@@ -106,17 +109,21 @@ router.put("/:id", authStoreAdmin, async (req, res) => {
     return res.status(500).json(err);
   }
 });
-// aprove store request 
+
+// aprove store request
 router.patch("/approval/:idStore", authSystemAdmin, async (req, res) => {
   try {
-    let idStore = req.params.idStore
-    let data = await StoreModel.updateOne({ _id: idStore }, {status:"approved"})
+    let idStore = req.params.idStore;
+    let data = await StoreModel.updateOne(
+      { _id: idStore },
+      { status: "approved" }
+    );
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
   }
-})
+});
 
 //Delete  Store
 router.delete("/:id", authStoreAdmin, async (req, res) => {
@@ -129,4 +136,5 @@ router.delete("/:id", authStoreAdmin, async (req, res) => {
     return res.status(500).json(err);
   }
 });
+
 module.exports = router;
