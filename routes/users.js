@@ -82,7 +82,7 @@ router.post("/", async (req, res) => {
 
     return res.status(201).json(userObj);
   } catch (err) {
-    if (err.code == 11000) {
+    if (err.code == 11000) { 
       return res.status(400).json({ err: "User already in system" });
     }
     console.log(err);
