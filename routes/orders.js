@@ -1,5 +1,5 @@
 const express = require("express");
-const { auth,  payPalAuth, authSystemAdmin } = require("../middlewares/auth");
+const { auth, payPalAuth, authSystemAdmin } = require("../middlewares/auth");
 const { OrderModel, validateOrder } = require("../models/orderModel");
 const { ProductModel } = require("../models/productsModel");
 const { UserModel } = require("../models/userModel");
@@ -20,6 +20,7 @@ router.get("/userOrder", auth, async (req, res) => {
     return res.status(500).json(error);
   }
 });
+
 router.get("/allOrders", authSystemAdmin, async (req, res) => {
   let perPage = req.query.perPage || 5;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
@@ -53,7 +54,7 @@ router.get("/allOrdersCount", auth, async (req, res) => {
 router.get("/productsInfo/:idOrder", auth, async (req, res) => {
   try {
     let order = await OrderModel.findOne({ _id: req.params.idOrder });
-    let prodSortIds_ar = order.products_ar.map((item) => item.s_id);
+    let prodSortIds_ar = order.products_ar.map((item) => item.short_id);
     let products = await ProductModel.find({
       short_id: { $in: prodSortIds_ar },
     });
