@@ -51,7 +51,7 @@ exports.authSystemAdmin = (req, res, next) => {
   }
   try {
     let decodeToken = jwt.verify(token, secret.jwtSecret);
-    // check if user role is admin
+    // check if user role is system admin
     if (decodeToken.role == "system_admin") {
       req.tokenData = decodeToken;
       next();
@@ -79,12 +79,12 @@ exports.authStoreAdmin = async (req, res, next) => {
   try {
     let decodeToken = jwt.verify(token, secret.jwtSecret);
     req.tokenData = decodeToken;
-    //verify the user id the store's admin or super admin
+    //verify the user id the store's admin or system admin
     let store = await StoreModel.findOne({
       _id: idStore,
       adminId: decodeToken._id,
     });
-    if (store || req.tokenData.role == "super_admin") {
+    if (store || req.tokenData.role == "system_admin") {
       next();
     } else {
       return res.status(401).json({ err: "you are not the admin" });
