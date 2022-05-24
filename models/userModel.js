@@ -17,6 +17,9 @@ const userSchema = new mongoose.Schema({
     phone:String,
     favs_ar:{
       type:Array , default:[]
+    },
+    birthDate:{
+      type:Date, default:"" 
     }
 
 })

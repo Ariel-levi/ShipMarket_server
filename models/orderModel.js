@@ -17,6 +17,7 @@ const orderSchema = new mongoose.Schema({
     default: Date.now(),
   },
   driver_id: String,
+  store_short_id:String
 });
 
 exports.OrderModel = mongoose.model("orders", orderSchema);
@@ -25,6 +26,7 @@ exports.validateOrder = (_bodyReq) => {
   let joiSchema = Joi.object({
     products_ar: Joi.array().min(1).max(999).required(),
     total_price: Joi.number().min(1).max(9999).required(),
+    store_short_id: Joi.string().min(1).max(10).required(),
   });
   return joiSchema.validate(_bodyReq);
 };
