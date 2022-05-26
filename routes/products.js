@@ -70,12 +70,16 @@ router.get("/amount", async (req, res) => {
 
 // get all the Products that belong to the store
 router.get("/storeProducts/:id", async (req, res) => {
+  let sort = req.query.sort || "_id";
+  let reverse = req.query.reverse == "yes" ? 1 : -1;
   let id = req.params.id;
   try {
     // get store info
     let dataStore = await StoreModel.findOne({ _id: id });
     // get all the Products
-    let data = await ProductModel.find({ store_short_id: dataStore.short_id });
+    let data = await ProductModel.find({
+      store_short_id: dataStore.short_id,
+    }).sort({ [sort]: reverse });
     res.json(data);
   } catch (err) {
     console.log(err);

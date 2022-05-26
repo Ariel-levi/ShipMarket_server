@@ -6,6 +6,7 @@ const {
 } = require("../middlewares/auth");
 const { genShortId } = require("../misc/genShortId");
 const { StoreModel, validateStore } = require("../models/storeModel");
+const { UserModel } = require("../models/userModel");
 const router = express.Router();
 
 //get all stores
@@ -14,13 +15,27 @@ router.get("/", async (req, res) => {
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
   let sort = req.query.sort || "_id";
   let reverse = req.query.reverse == "yes" ? 1 : -1;
-  let status = req.query.status 
+  let status = req.query.status;
   try {
-    let filter = status? {status} : {}
+    let filter = status ? { status } : {};
     let data = await StoreModel.find(filter)
       .limit(perPage)
       .skip(page * perPage)
       .sort({ [sort]: reverse });
+    res.json(data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+// get user stores
+router.get("/userStores", authStoreAdmin, async (req, res) => {
+  try {
+    let user_id = req.tokenData._id;
+    let data = await StoreModel.find({ admin_id: user_id }).sort({
+      date_created: -1,
+    });
     res.json(data);
   } catch (error) {
     console.log(error);
@@ -44,10 +59,10 @@ router.get("/search", async (req, res) => {
       .limit(perPage)
       .skip(page * perPage)
       .sort({ [sort]: reverse });
-    // if(data=""){
-    //   data = "not found"
-    // }
-    res.json(data);
+
+    // filter To get just the active stores
+    let filterData = data.filter((store) => store.status === "active");
+    res.json(filterData);
   } catch (err) {
     console.log(err);
     res.status(500).json(err);
@@ -68,13 +83,13 @@ router.get("/single/:id", async (req, res) => {
 
 // get amount of stores
 router.get("/amount", async (req, res) => {
-  let status = req.query.status
+  let status = req.query.status;
   let cat = req.query.cat || null;
   try {
-    let filter = status? { status } : {}
+    let filter = status ? { status } : {};
     // objFind = cat ? { cat_short_id: cat } : {};
     // countDocuments -> return just the amount of documents in the collections
-      let data = await StoreModel.countDocuments(filter);
+    let data = await StoreModel.countDocuments(filter);
     res.json({ amount: data });
   } catch (err) {
     console.log(err);
@@ -95,10 +110,11 @@ router.post("/", auth, async (req, res) => {
     store.short_id = await genShortId(StoreModel);
     await store.save();
     res.status(201).json(store);
-  }
-  catch (err) {
-    if (err.code == 11000) { 
-      return res.status(400).json( {...err, message:"store name already taken"});
+  } catch (err) {
+    if (err.code == 11000) {
+      return res
+        .status(400)
+        .json({ ...err, message: "store name already taken" });
     }
     console.log(err);
     return res.status(500).json(err);
@@ -117,14 +133,15 @@ router.put("/:id", authStoreAdmin, async (req, res) => {
     return res.status(500).json(err);
   }
 });
-// change store status 
+
+// change store status
 router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
   try {
-    let idStore = req.params.idStore
-    let store = await StoreModel.findOne({ _id: idStore})
-    let status = store.status === "pending"? "active" : "pending";
-    let data = await StoreModel.updateOne({ _id: idStore }, {status})
-    data.status = status
+    let idStore = req.params.idStore;
+    let store = await StoreModel.findOne({ _id: idStore });
+    let status = store.status === "pending" ? "active" : "pending";
+    let data = await StoreModel.updateOne({ _id: idStore }, { status });
+    data.status = status;
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
