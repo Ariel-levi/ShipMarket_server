@@ -15,11 +15,13 @@ router.get("/", (req, res) => {
 });
 
 // all users
-router.get("/usersList", async (req, res) => {
+router.get("/usersList", authSystemAdmin ,async (req, res) => {
   let perPage = req.query.perPage || 10;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
+  let role = req.query.role
   try {
-    let data = await UserModel.find({}, { password: 0 })
+    let filter = role? {role}:{}
+    let data = await UserModel.find(filter, { password: 0 })
       .limit(perPage)
       .skip(page * perPage);
     res.json(data);
@@ -112,6 +114,22 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// router.put("/", auth, async (req, res) => {
+//   req.body.password = req.tokenData.password
+//   let validBody = validateUser(req.body);
+//   if (validBody.error) {
+//     return res.status(400).json(validBody.error.details);
+//   }
+//   try {
+//     let data = await UserModel.updateOne(
+//       { _id: req.tokenData._id }, req.body );
+//     res.json(data);
+//   } catch (err) {
+//     console.log(err);
+//     return res.status(500).json(err);
+//   }
+// });
+
 // can change the role of user to admin user or delivery, must be admin in this endpoint
 router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
   let userId = req.params.userId;
@@ -135,7 +153,7 @@ router.patch("/applyingForDelivery", auth, async (req, res) => {
   try {
     let data = await UserModel.updateOne(
       { _id: req.tokenData._id },
-      { role: "apply_For_delivery" }
+      { role: "apply_for_delivery" }
     );
     res.json(data);
   } catch (err) {
