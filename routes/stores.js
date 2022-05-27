@@ -4,6 +4,7 @@ const {
   authStoreAdmin,
   authSystemAdmin,
 } = require("../middlewares/auth");
+const { sendNewStoreEmail } = require("../middlewares/sendEmail");
 const { genShortId } = require("../misc/genShortId");
 const { StoreModel, validateStore } = require("../models/storeModel");
 const { UserModel } = require("../models/userModel");
@@ -29,6 +30,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// TODO : fix authStoreAdmin the header can get one idStore ??
 // get user stores
 router.get("/userStores", authStoreAdmin, async (req, res) => {
   try {
@@ -143,6 +145,10 @@ router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
     let data = await StoreModel.updateOne({ _id: idStore }, { status });
     data.status = status;
     res.status(200).json(data);
+    // send the store owner email that his store is active
+    if (sendNewStoreEmail(req.body)) {
+      res.json({ msg: "email sended", status: "ok" });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
