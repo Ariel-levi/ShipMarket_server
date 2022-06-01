@@ -19,6 +19,7 @@ router.get("/", async (req, res) => {
   let status = req.query.status;
   try {
     let filter = status ? { status } : {};
+    // let data = await StoreModel.find({})
     let data = await StoreModel.find(filter)
       .limit(perPage)
       .skip(page * perPage)
@@ -30,9 +31,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// TODO : fix authStoreAdmin the header can get one idStore ??
 // get user stores
-router.get("/userStores", authStoreAdmin, async (req, res) => {
+router.get("/userStores", auth, async (req, res) => {
   try {
     let user_id = req.tokenData._id;
     let data = await StoreModel.find({ admin_id: user_id }).sort({
@@ -126,7 +126,6 @@ router.post("/", auth, async (req, res) => {
 //Edit  Store
 router.put("/:id", authStoreAdmin, async (req, res) => {
   try {
-    // let idEdit = req.params.idEdit;
     let idEdit = req.params.id;
     let data = await StoreModel.updateOne({ _id: idEdit }, req.body);
     res.status(200).json(data);
@@ -144,10 +143,23 @@ router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
     let status = store.status === "pending" ? "active" : "pending";
     let data = await StoreModel.updateOne({ _id: idStore }, { status });
     data.status = status;
-    res.status(200).json(data);
+    //get user info for the email
+    let adminStore = await UserModel.findOne(
+      { _id: store.admin_id },
+      { password: 0 }
+    );
+    adminStore.status = data.status;
+    adminStore.img_url = store.img_url;
+    // console.log("adminStore", adminStore);
     // send the store owner email that his store is active
-    if (sendNewStoreEmail(req.body)) {
-      res.json({ msg: "email sended", status: "ok" });
+    if (sendNewStoreEmail(adminStore)) {
+      res
+        .status(200)
+        .json({ data, msg: "New Store email sended", emailStatus: "ok" });
+    } else {
+      res
+        .status(200)
+        .json({ data, msg: "New Store email Not sended", emailStatus: "err" });
     }
   } catch (err) {
     console.log(err);

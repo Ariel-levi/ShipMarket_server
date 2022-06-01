@@ -70,7 +70,7 @@ exports.authSystemAdmin = (req, res, next) => {
 //auth store admin
 exports.authStoreAdmin = async (req, res, next) => {
   let token = req.header("x-api-key");
-  let idStore = req.header("idStore");
+  let idStore = req.header("id-Store");
   if (!token) {
     return res
       .status(401)

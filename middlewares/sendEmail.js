@@ -1,6 +1,9 @@
 const nodemailer = require("nodemailer");
 const { ContactEmail } = require("../emails/contactEmail");
-const { NewStoreEmail } = require("../emails/newStoreEmail");
+const {
+  NewStoreEmailActive,
+  NewStoreEmailPending,
+} = require("../emails/newStoreEmail");
 
 // need to open in outlook new accout
 const transporter = nodemailer.createTransport({
@@ -42,8 +45,11 @@ exports.sendNewStoreEmail = async (_bodyData = {}) => {
     from: "deliverproject2022@outlook.co.il",
     replyTo: _bodyData.email,
     to: _bodyData.email,
-    subject: _bodyData.subject,
-    html: NewStoreEmail(_bodyData),
+    subject: "Your Store Is " + _bodyData.status,
+    html:
+      _bodyData.status === "active"
+        ? NewStoreEmailActive(_bodyData)
+        : NewStoreEmailPending(_bodyData),
   };
   await sendOutlookMail(mailOptions);
 };
