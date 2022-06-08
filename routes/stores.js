@@ -101,6 +101,7 @@ router.get("/amount", async (req, res) => {
 
 //open new Store
 router.post("/", auth, async (req, res) => {
+  req.body.address = JSON.parse(req.body.address);
   let validBody = validateStore(req.body);
   if (validBody.error) {
     return res.status(400).json(validBody.error.details);
@@ -124,9 +125,9 @@ router.post("/", auth, async (req, res) => {
 });
 
 //Edit  Store
-router.put("/:id", authStoreAdmin, async (req, res) => {
+router.put("/:idStore", authStoreAdmin, async (req, res) => {
   try {
-    let idEdit = req.params.id;
+    let idEdit = req.params.idStore;
     let data = await StoreModel.updateOne({ _id: idEdit }, req.body);
     res.status(200).json(data);
   } catch (err) {
@@ -168,9 +169,9 @@ router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
 });
 
 //Delete  Store
-router.delete("/:id", authStoreAdmin, async (req, res) => {
+router.delete("/:idStore", authStoreAdmin, async (req, res) => {
   try {
-    let idDel = req.params.id;
+    let idDel = req.params.idStore;
     let data = await StoreModel.deleteOne({ _id: idDel });
     res.status(200).json(data);
   } catch (err) {
