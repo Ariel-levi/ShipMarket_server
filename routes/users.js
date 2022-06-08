@@ -15,12 +15,12 @@ router.get("/", (req, res) => {
 });
 
 // all users
-router.get("/usersList", authSystemAdmin ,async (req, res) => {
+router.get("/usersList", authSystemAdmin, async (req, res) => {
   let perPage = req.query.perPage || 10;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
-  let role = req.query.role
+  let role = req.query.role;
   try {
-    let filter = role? {role}:{}
+    let filter = role ? { role } : {};
     let data = await UserModel.find(filter, { password: 0 })
       .limit(perPage)
       .skip(page * perPage);
