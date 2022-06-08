@@ -101,7 +101,7 @@ router.get("/amount", async (req, res) => {
 
 //open new Store
 router.post("/", auth, async (req, res) => {
-  req.body.address = JSON.parse(req.body.address)
+  req.body.address = JSON.parse(req.body.address);
   let validBody = validateStore(req.body);
   if (validBody.error) {
     return res.status(400).json(validBody.error.details);
