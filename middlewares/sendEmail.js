@@ -4,6 +4,7 @@ const {
   NewStoreEmailActive,
   NewStoreEmailPending,
 } = require("../emails/newStoreEmail");
+const { VerifyEmailHtml } = require("../emails/verifyEmail");
 
 // need to open in outlook new accout
 const transporter = nodemailer.createTransport({
@@ -50,6 +51,17 @@ exports.sendNewStoreEmail = async (_bodyData = {}) => {
       _bodyData.status === "active"
         ? NewStoreEmailActive(_bodyData)
         : NewStoreEmailPending(_bodyData),
+  };
+  await sendOutlookMail(mailOptions);
+};
+
+exports.verifyUserEmail = async (_user, _host) => {
+  let mailOptions = {
+    from: "deliverproject2022@outlook.co.il",
+    // replyTo: ,
+    to: _user.email,
+    subject: "Email verification",
+    html: VerifyEmailHtml(_user, _host),
   };
   await sendOutlookMail(mailOptions);
 };

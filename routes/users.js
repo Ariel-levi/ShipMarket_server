@@ -5,22 +5,26 @@ const {
   validateLogin,
   genToken,
 } = require("../models/userModel");
+
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 const { auth, authSystemAdmin } = require("../middlewares/auth");
 const { pick } = require("lodash");
+const { verifyUserEmail } = require("../middlewares/sendEmail");
 
 router.get("/", (req, res) => {
   res.json({ msg: "Users work" });
 });
 
 // all users
-router.get("/usersList", authSystemAdmin ,async (req, res) => {
+router.get("/usersList", authSystemAdmin, async (req, res) => {
   let perPage = req.query.perPage || 10;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
-  let role = req.query.role
+  let role = req.query.role;
   try {
-    let filter = role? {role}:{}
+    let filter = role ? { role } : {};
     let data = await UserModel.find(filter, { password: 0 })
       .limit(perPage)
       .skip(page * perPage);
@@ -68,6 +72,28 @@ router.get("/myInfo", auth, async (req, res) => {
   }
 });
 
+//verify account
+router.get("/verify-email", async (req, res) => {
+  let token = req.query.token || null;
+  if (token) {
+    try {
+      let data = await UserModel.updateOne(
+        { emailToken: token },
+        //update verified to true and remove email token
+        { verified: true, $unset: { emailToken: "" } }
+      );
+      return res
+        .status(200)
+        .json({ msg: "You have verified your account, you can login now" });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ msg: error });
+    }
+  } else {
+    return res.status(400).json({ msg: "Accound has not been found" });
+  }
+});
+
 // add new user
 router.post("/", async (req, res) => {
   // check validate req.body
@@ -76,13 +102,25 @@ router.post("/", async (req, res) => {
     return res.status(400).json(validBody.error.details);
   }
   try {
-    let user = new UserModel(req.body);
+    let user = new UserModel({
+      ...req.body,
+      emailToken: crypto.randomBytes(64).toString("hex"),
+    });
     user.password = await bcrypt.hash(user.password, 10);
     await user.save();
-    // user.password = "*****";
-    let userObj = pick(user, ["_id", "name", "email", "address", "role"]);
-
-    return res.status(201).json(userObj);
+    let userDetails = pick(user, ["_id", "name", "email", "address", "role"]);
+    //email verification
+    if (verifyUserEmail(user, req.headers.host)) {
+      return res.status(200).json({
+        msg: "Verified email is sent to your gmail account.",
+        emailStatus: "ok",
+        userDetails,
+      });
+    } else {
+      return res
+        .status(200)
+        .json({ msg: "something went wrong", emailStatus: "err" });
+    }
   } catch (err) {
     if (err.code == 11000) {
       return res.status(400).json({ err: "User already in system" });
@@ -107,8 +145,10 @@ router.post("/login", async (req, res) => {
     if (!validPass) {
       return res.status(401).json({ err: "user or password is wrong" });
     }
-
-    res.json({ token: genToken(user._id, user.role, user.name) });
+    if (!user.verified) {
+      return res.status(401).json({ err: "Please verify your email address" });
+    }
+    res.json({ token: genToken(user._id, user.role) });
   } catch (err) {
     console.log(err);
   }
