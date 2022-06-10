@@ -144,21 +144,38 @@ router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
     let status = store.status === "pending" ? "active" : "pending";
     let data = await StoreModel.updateOne({ _id: idStore }, { status });
     data.status = status;
-    //get user info for the email
-    let adminStore = await UserModel.findOne(
+    //get user info for the email and update role
+    let user = await UserModel.findOne(
       { _id: store.admin_id },
       { password: 0 }
     );
-    adminStore.status = data.status;
-    adminStore.img_url = store.img_url;
-    // console.log("adminStore", adminStore);
+    //update user's role to store admin
+    if (status === "active") {
+      let data = await UserModel.updateOne(
+        { _id: user._id },
+        { role: "store_admin" }
+      );
+      console.log(data);
+    } else {
+      //check if the user own any other activate store
+      let anyStore = await StoreModel.find({
+        admin_id: user._id,
+        status: "active",
+      });
+      if (anyStore.length === 0) {
+        //no activated store left
+        await UserModel.updateOne(user, { role: "user" });
+      }
+    }
+    user.status = data.status;
+    user.img_url = store.img_url;
     // send the store owner email that his store is active
-    if (sendNewStoreEmail(adminStore)) {
-      res
+    if (sendNewStoreEmail(user)) {
+      return res
         .status(200)
         .json({ data, msg: "New Store email sended", emailStatus: "ok" });
     } else {
-      res
+      return res
         .status(200)
         .json({ data, msg: "New Store email Not sended", emailStatus: "err" });
     }
