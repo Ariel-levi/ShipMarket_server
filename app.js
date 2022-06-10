@@ -7,6 +7,7 @@ const http = require("http");
 const fileUpload = require("express-fileupload");
 let cors = require("cors");
 require("./db/mongoConnect");
+require("dotenv").config();
 
 const { routesInit, corsAccessControl } = require("./routes/config_routes");
 
@@ -37,6 +38,6 @@ routesInit(app);
 
 // מייצר את השרת ומשתמש ביכולות של האפ שהוא האקספרס
 const server = http.createServer(app);
-let port = process.env.PORT || "3002";
+let port = process.env.PORT || 3002;
 console.log("Listen on Port : " + port);
 server.listen(port);
