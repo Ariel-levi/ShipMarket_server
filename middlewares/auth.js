@@ -2,6 +2,7 @@ const { default: axios } = require("axios");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 const { StoreModel } = require("../models/storeModel");
+require("dotenv").config();
 
 //auth user
 exports.auth = (req, res, next) => {
@@ -10,7 +11,7 @@ exports.auth = (req, res, next) => {
     return res.status(401).json({ err: "You must send a token" });
   }
   try {
-    let decodeToken = jwt.verify(token, secret.jwtSecret);
+    let decodeToken = jwt.verify(token, process.env.JWT_SECRET);
     req.tokenData = decodeToken;
     next();
   } catch (err) {
@@ -77,7 +78,7 @@ exports.authSystemAdmin = (req, res, next) => {
       .json({ err: "You must send token in header to this endpoint" });
   }
   try {
-    let decodeToken = jwt.verify(token, secret.jwtSecret);
+    let decodeToken = jwt.verify(token, process.env.JWT_SECRET);
     // check if user role is system admin
     if (decodeToken.role == "system_admin") {
       req.tokenData = decodeToken;
@@ -104,7 +105,7 @@ exports.authStoreAdmin = async (req, res, next) => {
       .json({ err: "You must send token in header to this endpoint" });
   }
   try {
-    let decodeToken = jwt.verify(token, secret.jwtSecret);
+    let decodeToken = jwt.verify(token, process.env.JWT_SECRET);
     req.tokenData = decodeToken;
     //verify the user id the store's admin or system admin
     let store = await StoreModel.findOne({

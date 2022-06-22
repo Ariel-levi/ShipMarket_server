@@ -13,8 +13,8 @@ const transporter = nodemailer.createTransport({
   port: 587, // port for secure SMTP
   tls: { ciphers: "SSLv3" },
   auth: {
-    user: "deliverproject2022@outlook.co.il",
-    pass: "EmailDelivery2022",
+    user: process.env.SENDER_EMAIL_ADDRESS,
+    pass: process.env.SENDER_EMAIL_PASSWORD,
   },
 });
 
@@ -32,7 +32,7 @@ const sendOutlookMail = (_mailOptions) => {
 
 exports.sendContactEmail = async (_bodyData = {}) => {
   let mailOptions = {
-    from: "deliverproject2022@outlook.co.il",
+    from: process.env.SENDER_EMAIL_ADDRESS,
     replyTo: _bodyData.email,
     to: "deliverproject2022@gmail.com",
     subject: _bodyData.subject,
@@ -43,7 +43,7 @@ exports.sendContactEmail = async (_bodyData = {}) => {
 
 exports.sendNewStoreEmail = async (_bodyData = {}) => {
   let mailOptions = {
-    from: "deliverproject2022@outlook.co.il",
+    from: process.env.SENDER_EMAIL_ADDRESS,
     replyTo: _bodyData.email,
     to: _bodyData.email,
     subject: "Your Store Is " + _bodyData.status,
@@ -57,7 +57,7 @@ exports.sendNewStoreEmail = async (_bodyData = {}) => {
 
 exports.verifyUserEmail = async (_user, _host) => {
   let mailOptions = {
-    from: "deliverproject2022@outlook.co.il",
+    from: process.env.SENDER_EMAIL_ADDRESS,
     to: _user.email,
     subject: "Email Verification",
     html: VerifyEmailHtml(_user, _host),

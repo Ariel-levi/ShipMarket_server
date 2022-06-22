@@ -33,6 +33,7 @@ router.get("/userOrder", auth, async (req, res) => {
   }
 });
 
+
 router.get("/allOrders", authDeliver, async (req, res) => {
   let perPage = req.query.perPage || 5;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
@@ -107,16 +108,7 @@ router.get("/productsInfo/:idOrder", auth, async (req, res) => {
     let order = await OrderModel.findOne({
       _id: req.params.idOrder,
     });
-    let prodSortIds_ar = order.products_ar.map((item) => item.short_id);
-    let products = await ProductModel.find({
-      short_id: {
-        $in: prodSortIds_ar,
-      },
-    });
-    res.json({
-      order,
-      products,
-    });
+    res.status(200).json(order);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
@@ -259,9 +251,6 @@ router.delete("/:delId", authSystemAdmin, async (req, res) => {
 router.patch("/shipping/takingOrder", authDeliver, async (req, res) => {
   let orderId = req.body.orderId;
   let user = req.tokenData;
-  //   if (user.role != "driver")
-  //     return res.status(500).json("you are not a driver");
-
   try {
     let data = await OrderModel.updateOne(
       {
@@ -275,7 +264,6 @@ router.patch("/shipping/takingOrder", authDeliver, async (req, res) => {
     );
     res.json(data);
   } catch (error) {
-    console.log(error);
     return res.status(500).json(error);
   }
 });
