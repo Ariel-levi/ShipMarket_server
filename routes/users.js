@@ -96,6 +96,7 @@ router.get("/verify-email", async (req, res) => {
 
 // add new user
 router.post("/", async (req, res) => {
+  req.body.address = JSON.parse(req.body.address);
   // check validate req.body
   let validBody = validateUser(req.body);
   if (validBody.error) {

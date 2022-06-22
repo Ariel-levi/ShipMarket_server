@@ -126,6 +126,7 @@ router.post("/", auth, async (req, res) => {
 
 //Edit  Store
 router.put("/:idStore", authStoreAdmin, async (req, res) => {
+  req.body.address = JSON.parse(req.body.address);
   try {
     let idEdit = req.params.idStore;
     let data = await StoreModel.updateOne({ _id: idEdit }, req.body);
@@ -150,7 +151,7 @@ router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
       { password: 0 }
     );
     //update user's role to store admin
-    if (status === "active") {
+    if (status === "active" && user.role != "system_admin") {
       let data = await UserModel.updateOne(
         { _id: user._id },
         { role: "store_admin" }

@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  address: String,
+  address: Object,
   phone: String,
   favs_ar: {
     type: Array,
@@ -39,7 +39,7 @@ exports.validateUser = (_bodyReq) => {
     name: Joi.string().min(2).max(100).required(),
     email: Joi.string().min(2).max(150).email().required(),
     password: Joi.string().min(3).max(100).required(),
-    address: Joi.string().min(2).max(300).allow(null, ""),
+    address: Joi.object().min(2).max(300).allow(null, ""),
     phone: Joi.string().min(2).max(300).allow(null, ""),
   });
   return joiSchema.validate(_bodyReq);

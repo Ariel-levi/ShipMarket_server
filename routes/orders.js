@@ -1,7 +1,13 @@
 const express = require("express");
-const { auth, payPalAuth, authSystemAdmin } = require("../middlewares/auth");
+const {
+  auth,
+  payPalAuth,
+  authSystemAdmin,
+  authDeliver,
+} = require("../middlewares/auth");
 const { OrderModel, validateOrder } = require("../models/orderModel");
 const { ProductModel } = require("../models/productsModel");
+const { StoreModel } = require("../models/storeModel");
 const { UserModel } = require("../models/userModel");
 const router = express.Router();
 
@@ -27,7 +33,8 @@ router.get("/userOrder", auth, async (req, res) => {
   }
 });
 
-router.get("/allOrders", async (req, res) => {
+
+router.get("/allOrders", authDeliver, async (req, res) => {
   let perPage = req.query.perPage || 5;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
   let sort = req.query.sort || "_id";
@@ -36,16 +43,9 @@ router.get("/allOrders", async (req, res) => {
   let status = req.query.status;
 
   try {
-    let filter = user_id
-      ? {
-          user_id,
-        }
-      : {};
+    let filter = user_id ? { user_id } : {};
     filter = status
-      ? {
-          ...filter,
-          status,
-        }
+      ? { ...filter, status }
       : {
           ...filter,
         };
@@ -56,6 +56,35 @@ router.get("/allOrders", async (req, res) => {
         [sort]: reverse,
       });
     res.json(data);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// get the store with the orders
+router.get("/storesWithOrders", authDeliver, async (req, res) => {
+  try {
+    // get all orders
+    let allOrders = await OrderModel.find({ status: "paid" });
+    // get all stores
+    let allStores = await StoreModel.find({});
+    let data = [];
+
+    allStores.forEach((store) => {
+      // create empty array to save each store's orders
+      let ordersArr = [];
+      allOrders.forEach((order) => {
+        if (store.short_id === order.store_short_id) {
+          ordersArr.push(order);
+        }
+      });
+      // push all storse with orders
+      if (ordersArr.length > 0) {
+        data.push({ store: store, orders: ordersArr });
+      }
+    });
+
+    res.json({ data });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -74,32 +103,11 @@ router.get("/allOrdersCount", auth, async (req, res) => {
   }
 });
 
-// router.get("/productsInfo/:idOrder", auth, async(req, res) => {
-//     try {
-//         let order = await OrderModel.findOne({
-//             _id: req.params.idOrder
-//         });
-//         let prodSortIds_ar = order.products_ar.map((item) => item.short_id);
-//         let products = await ProductModel.find({
-//             short_id: {
-//                 $in: prodSortIds_ar
-//             },
-//         });
-//         res.json({
-//             order,
-//             products
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json(error);
-//     }
-// });
 router.get("/productsInfo/:idOrder", auth, async (req, res) => {
   try {
     let order = await OrderModel.findOne({
       _id: req.params.idOrder,
     });
-
     res.status(200).json(order);
   } catch (error) {
     console.log(error);
@@ -238,13 +246,11 @@ router.delete("/:delId", authSystemAdmin, async (req, res) => {
   }
 });
 
+// *******************************************
 //taking order by driver
-router.patch("/shipping/takingOrder", auth, async (req, res) => {
+router.patch("/shipping/takingOrder", authDeliver, async (req, res) => {
   let orderId = req.body.orderId;
   let user = req.tokenData;
-  if (user.role != "driver")
-    return res.status(500).json("you are not a driver");
-
   try {
     let data = await OrderModel.updateOne(
       {
@@ -261,6 +267,7 @@ router.patch("/shipping/takingOrder", auth, async (req, res) => {
     return res.status(500).json(error);
   }
 });
+
 //updating the shipment status by the driver (delivered/paid)
 router.patch("/shipping/orderStatus", auth, async (req, res) => {
   let orderId = req.body.orderId;
