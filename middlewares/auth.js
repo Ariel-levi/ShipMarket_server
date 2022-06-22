@@ -1,6 +1,6 @@
 const { default: axios } = require("axios");
 const jwt = require("jsonwebtoken");
-const { secret } = require("../config/config");
+// const { secret } = require("../config/config");
 const { StoreModel } = require("../models/storeModel");
 require("dotenv").config();
 
