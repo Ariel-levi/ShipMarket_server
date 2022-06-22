@@ -13,10 +13,13 @@ const nodemailer = require("nodemailer");
 const { auth, authSystemAdmin } = require("../middlewares/auth");
 const { pick } = require("lodash");
 const { verifyUserEmail } = require("../middlewares/sendEmail");
+const open = require("open");
 
 router.get("/", (req, res) => {
   res.json({ msg: "Users work" });
 });
+
+// open("https://www.wikipedia.org/")
 
 // all users
 router.get("/usersList", authSystemAdmin, async (req, res) => {
@@ -82,6 +85,7 @@ router.get("/verify-email", async (req, res) => {
         //update verified to true and remove email token
         { verified: true, $unset: { emailToken: "" } }
       );
+      open(process.env.CLIENT_URL + "/login");
       return res
         .status(200)
         .json({ msg: "You have verified your account, you can login now" });

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { secret } = require("../config/config");
 require("dotenv").config();
 
 main().catch((err) => console.log(err));
