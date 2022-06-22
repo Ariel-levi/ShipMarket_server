@@ -41,6 +41,33 @@ exports.payPalAuth = async (_tokenId, _orderId, _ifRealPay = true) => {
   }
 };
 
+//auth Delivery
+exports.authDeliver = (req, res, next) => {
+  let token = req.header("x-api-key");
+  if (!token) {
+    return res
+      .status(401)
+      .json({ err: "You must send token in header to this endpoint" });
+  }
+  try {
+    let decodeToken = jwt.verify(token, secret.jwtSecret);
+    // check if user role is Delivery
+    // console.log(decodeToken.role);
+    if (decodeToken.role == "deliver" || decodeToken.role == "system_admin") {
+      req.tokenData = decodeToken;
+      next();
+    } else {
+      return res
+        .status(401)
+        .json({ err: "You must be deliver in this endpoint" });
+    }
+  } catch (err) {
+    return res
+      .status(401)
+      .json({ err: "Token invalid (if you hacker) or expired" });
+  }
+};
+
 //auth system admin
 exports.authSystemAdmin = (req, res, next) => {
   let token = req.header("x-api-key");

@@ -58,9 +58,8 @@ exports.sendNewStoreEmail = async (_bodyData = {}) => {
 exports.verifyUserEmail = async (_user, _host) => {
   let mailOptions = {
     from: "deliverproject2022@outlook.co.il",
-    // replyTo: ,
     to: _user.email,
-    subject: "Email verification",
+    subject: "Email Verification",
     html: VerifyEmailHtml(_user, _host),
   };
   await sendOutlookMail(mailOptions);
