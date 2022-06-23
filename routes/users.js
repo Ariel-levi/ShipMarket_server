@@ -19,8 +19,6 @@ router.get("/", (req, res) => {
   res.json({ msg: "Users work" });
 });
 
-// open("https://www.wikipedia.org/")
-
 // all users
 router.get("/usersList", authSystemAdmin, async (req, res) => {
   let perPage = req.query.perPage || 10;
