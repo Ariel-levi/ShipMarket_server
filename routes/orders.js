@@ -33,7 +33,6 @@ router.get("/userOrder", auth, async (req, res) => {
   }
 });
 
-
 router.get("/allOrders", authDeliver, async (req, res) => {
   let perPage = req.query.perPage || 5;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
@@ -90,6 +89,26 @@ router.get("/storesWithOrders", authDeliver, async (req, res) => {
   }
 });
 
+// ## NEW ##
+// get order details store info and user name and email
+router.get("/deliveryInfo/:idOrder", authDeliver, async (req, res) => {
+  try {
+    let order = await OrderModel.findOne({
+      _id: req.params.idOrder,
+    });
+    let store = await StoreModel.findOne({
+      short_id: order.store_short_id,
+    });
+    let user = await UserModel.findOne(
+      { _id: order.user_id },
+      { name: 1, email: 1 }
+    );
+    res.status(200).json({ order, store, user });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 // return the orders' amount
 router.get("/allOrdersCount", auth, async (req, res) => {
   try {
@@ -103,6 +122,7 @@ router.get("/allOrdersCount", auth, async (req, res) => {
   }
 });
 
+// ?????? check
 router.get("/productsInfo/:idOrder", auth, async (req, res) => {
   try {
     let order = await OrderModel.findOne({
