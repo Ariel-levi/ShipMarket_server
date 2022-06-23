@@ -51,7 +51,7 @@ exports.authDeliver = (req, res, next) => {
       .json({ err: "You must send token in header to this endpoint" });
   }
   try {
-    let decodeToken = jwt.verify(token, secret.jwtSecret);
+    let decodeToken = jwt.verify(token, process.env.JWT_SECRET);
     // check if user role is Delivery
     // console.log(decodeToken.role);
     if (decodeToken.role == "deliver" || decodeToken.role == "system_admin") {
