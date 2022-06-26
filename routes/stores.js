@@ -154,7 +154,7 @@ router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
     if (status === "active" && user.role != "system_admin") {
       let data = await UserModel.updateOne(
         { _id: user._id },
-        { role: "store_admin" }
+        { role: "admin" }
       );
       console.log(data);
     } else {
