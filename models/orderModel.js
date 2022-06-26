@@ -16,6 +16,7 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  short_id: String,
   driver_id: String,
   store_short_id: String,
   destination: Object,
