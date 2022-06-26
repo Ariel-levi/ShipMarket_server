@@ -5,6 +5,7 @@ const {
   authSystemAdmin,
   authDeliver,
 } = require("../middlewares/auth");
+const { genShortId } = require("../misc/genShortId");
 const { OrderModel, validateOrder } = require("../models/orderModel");
 const { ProductModel } = require("../models/productsModel");
 const { StoreModel } = require("../models/storeModel");
@@ -166,6 +167,7 @@ router.post("/", auth, async (req, res) => {
     // add new order
     let newOrder = new OrderModel(req.body);
     newOrder.user_id = req.tokenData._id;
+    newOrder.short_id = await genShortId(OrderModel);
     await newOrder.save();
     return res.status(201).json(newOrder);
   } catch (err) {
