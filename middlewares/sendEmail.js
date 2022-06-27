@@ -13,9 +13,8 @@ const transporter = nodemailer.createTransport({
   port: 587, // port for secure SMTP
   tls: { ciphers: "SSLv3" },
   auth: {
-    type: "OAuth2",
     user: process.env.SENDER_EMAIL_ADDRESS,
-    accessToken: "ya29.Xx_XX0xxxxx-xX0X0XxXXxXxXXXxX0x",
+    pass: process.env.SENDER_EMAIL_PASSWORD,
   },
 });
 
