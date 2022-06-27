@@ -14,7 +14,7 @@ exports.corsAccessControl = (app) => {
     if (!req.get("Origin")) return next();
     // * -> במציאות במקום כוכבית נכניס שם דומיין שיש לו אישור גישה
     // לשרת
-    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Origin", "https://shipmarket.netlify.app/");
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH");
     res.set(
       "Access-Control-Allow-Headers",
