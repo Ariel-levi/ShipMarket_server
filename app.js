@@ -22,9 +22,6 @@ app.use(
 );
 corsAccessControl(app);
 routesInit(app);
-// app.use("/", (req,res) => {
-//   res.json({message:"Our api app work perfect!"});
-// })
 
 const port = process.env.PORT;
 const server = http.createServer(app);
