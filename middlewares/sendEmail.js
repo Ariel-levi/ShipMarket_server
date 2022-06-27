@@ -58,6 +58,7 @@ exports.sendNewStoreEmail = async (_bodyData = {}) => {
 exports.verifyUserEmail = async (_user, _host) => {
   let mailOptions = {
     from: process.env.SENDER_EMAIL_ADDRESS,
+    replyTo: _user.email,
     to: _user.email,
     subject: "Email Verification",
     html: VerifyEmailHtml(_user, _host),
