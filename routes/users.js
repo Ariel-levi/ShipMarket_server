@@ -85,9 +85,7 @@ router.get("/verify-email", async (req, res) => {
         { verified: true, $unset: { emailToken: "" } }
       );
       open(`${process.env.CLIENT_URL}/welcome`);
-      return res
-        .status(200)
-        .json({ msg: "You have verified your account, you can login now" });
+      return res.redirect(process.env.CLIENT_URL + "/welcome");
     } catch (error) {
       console.log(error);
       return res.status(400).json({ msg: error });
