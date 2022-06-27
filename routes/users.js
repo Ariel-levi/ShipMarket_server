@@ -84,7 +84,7 @@ router.get("/verify-email", async (req, res) => {
         //update verified to true and remove email token
         { verified: true, $unset: { emailToken: "" } }
       );
-      open(`${process.env.CLIENT_URL} /welcome`);
+      open(`${process.env.CLIENT_URL}/welcome`);
       return res
         .status(200)
         .json({ msg: "You have verified your account, you can login now" });
