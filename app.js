@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
 
   socket.on("taking_order", (orderId) => {
     socket.join(orderId);
-    console.log(`Deliver with ID ${socket.id} joined room ${orderId}`);
+    console.log(`Courier with ID ${socket.id} joined room ${orderId}`);
     socket
       .to(orderId)
       .emit("order_shipped", { msg: `Order number ${orderId} is on way` });

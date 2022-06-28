@@ -3,7 +3,7 @@ const {
   auth,
   payPalAuth,
   authSystemAdmin,
-  authDeliver,
+  authCourier,
 } = require("../middlewares/auth");
 const { genShortId } = require("../misc/genShortId");
 const { OrderModel, validateOrder } = require("../models/orderModel");
@@ -34,7 +34,7 @@ router.get("/userOrder", auth, async (req, res) => {
   }
 });
 
-router.get("/allOrders", authDeliver, async (req, res) => {
+router.get("/allOrders", authCourier, async (req, res) => {
   let perPage = req.query.perPage || 5;
   let page = req.query.page >= 1 ? req.query.page - 1 : 0;
   let sort = req.query.sort || "_id";
@@ -62,7 +62,7 @@ router.get("/allOrders", authDeliver, async (req, res) => {
 });
 
 // get the store with the orders
-router.get("/storesWithOrders", authDeliver, async (req, res) => {
+router.get("/storesWithOrders", authCourier, async (req, res) => {
   try {
     // get all orders
     let allOrders = await OrderModel.find({ status: "paid" });
@@ -92,7 +92,7 @@ router.get("/storesWithOrders", authDeliver, async (req, res) => {
 
 // ## NEW ##
 // get order details store info and user name and email
-router.get("/deliveryInfo/:idOrder", authDeliver, async (req, res) => {
+router.get("/deliveryInfo/:idOrder", authCourier, async (req, res) => {
   try {
     let order = await OrderModel.findOne({
       _id: req.params.idOrder,
@@ -270,7 +270,7 @@ router.delete("/:delId", authSystemAdmin, async (req, res) => {
 
 // *******************************************
 //taking order by driver
-router.patch("/shipping/takingOrder", authDeliver, async (req, res) => {
+router.patch("/shipping/takingOrder", authCourier, async (req, res) => {
   let orderId = req.body.orderId;
   let user = req.tokenData;
   try {
