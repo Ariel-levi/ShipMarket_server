@@ -171,7 +171,7 @@ router.post("/login", async (req, res) => {
 //   }
 // });
 
-// can change the role of user to admin user or delivery, must be admin in this endpoint
+// can change the role of user to admin user or courier, must be admin in this endpoint
 router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
   let userId = req.params.userId;
   let role = req.params.role;
@@ -189,12 +189,12 @@ router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
   }
 });
 
-//applying for a delivery position
-router.patch("/applyingForDelivery", auth, async (req, res) => {
+//applying for a courier position
+router.patch("/applyingForCourier", auth, async (req, res) => {
   try {
     let data = await UserModel.updateOne(
       { _id: req.tokenData._id },
-      { role: "apply_for_delivery" }
+      { role: "apply_for_courier" }
     );
     res.json(data);
   } catch (err) {
