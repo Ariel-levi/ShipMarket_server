@@ -42,8 +42,8 @@ exports.payPalAuth = async (_tokenId, _orderId, _ifRealPay = true) => {
   }
 };
 
-//auth Delivery
-exports.authDeliver = (req, res, next) => {
+//auth Courier
+exports.authCourier = (req, res, next) => {
   let token = req.header("x-api-key");
   if (!token) {
     return res
@@ -52,15 +52,15 @@ exports.authDeliver = (req, res, next) => {
   }
   try {
     let decodeToken = jwt.verify(token, process.env.JWT_SECRET);
-    // check if user role is Delivery
+    // check if user role is Courier
     // console.log(decodeToken.role);
-    if (decodeToken.role == "deliver" || decodeToken.role == "system_admin") {
+    if (decodeToken.role == "courier" || decodeToken.role == "system_admin") {
       req.tokenData = decodeToken;
       next();
     } else {
       return res
         .status(401)
-        .json({ err: "You must be deliver in this endpoint" });
+        .json({ err: "You must be courier in this endpoint" });
     }
   } catch (err) {
     return res

@@ -1,25 +1,18 @@
-// הספרייה אקספרס שיודעת לתפעל שרת בקלות
 const express = require("express");
-// מודול שעושה מיניפולציות על כתובות שהוא מקבל
 const path = require("path");
-// מודול שמאפשר לנו להריץ שרת HTTP
 const http = require("http");
 const fileUpload = require("express-fileupload");
-let cors = require("cors");
+const { Server } = require("socket.io");
+const cors = require("cors");
 require("./db/mongoConnect");
 require("dotenv").config();
 
 const { routesInit, corsAccessControl } = require("./routes/config_routes");
 
-// מגדיר משתנה שמשתמש ביכולות של אקספרס שיעבור ל
-// מודול שרת HTTP
 const app = express();
 
-// מגדיר שכל מידע שנכנס ויוצא הוא בפורמט ג'ייסון
-// קריטי במיוחד שאנחנו מייצרים איי פי אייי
 app.use(express.json());
-// מגדיר תקייה סטטית שחשופה לצד לקוח
-// תמונות וקבצי הטמל לדוגמא שהמשתמש ינסה לפנות אליהם השרת ידע להציג
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(
@@ -27,17 +20,34 @@ app.use(
     limits: { filesSize: 1024 * 1024 * 5 }, //limit to 5 mb
   })
 );
-//פונקציה שמאפשרת לכל שרת מכל דומיין
-// להתחבר אלינו
 corsAccessControl(app);
-// מאתחל את כל הרואטים הקיימים
 routesInit(app);
-// app.use("/", (req,res) => {
-//   res.json({message:"Our api app work perfect!"});
-// })
 
-// מייצר את השרת ומשתמש ביכולות של האפ שהוא האקספרס
+const port = process.env.PORT;
 const server = http.createServer(app);
-let port = process.env.PORT;
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL, //telling our server which server is going to be calling to our socket.io server, the client side
+    methods: ["GET", "POST"], // methods allowed
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected", socket.id);
+
+  socket.on("join", (orderId) => {
+    socket.join(orderId);
+    console.log(`Customer with ID ${socket.id} joined room ${orderId}`);
+  });
+
+  socket.on("taking_order", (orderId) => {
+    socket.join(orderId);
+    console.log(`Courier with ID ${socket.id} joined room ${orderId}`);
+    socket
+      .to(orderId)
+      .emit("order_shipped", { msg: `Order number ${orderId} is on way` });
+  });
+});
+
 console.log("Listen on Port : " + port);
 server.listen(port);

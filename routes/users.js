@@ -11,6 +11,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const { auth, authSystemAdmin } = require("../middlewares/auth");
+require("dotenv").config();
 const { pick } = require("lodash");
 const { verifyUserEmail } = require("../middlewares/sendEmail");
 const open = require("open");
@@ -83,10 +84,7 @@ router.get("/verify-email", async (req, res) => {
         //update verified to true and remove email token
         { verified: true, $unset: { emailToken: "" } }
       );
-      open(process.env.CLIENT_URL + "/welcome");
-      return res
-        .status(200)
-        .json({ msg: "You have verified your account, you can login now" });
+      return res.redirect(process.env.CLIENT_URL + "/welcome");
     } catch (error) {
       console.log(error);
       return res.status(400).json({ msg: error });
@@ -173,7 +171,7 @@ router.post("/login", async (req, res) => {
 //   }
 // });
 
-// can change the role of user to admin user or delivery, must be admin in this endpoint
+// can change the role of user to admin user or courier, must be admin in this endpoint
 router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
   let userId = req.params.userId;
   let role = req.params.role;
@@ -191,12 +189,12 @@ router.patch("/changeRole/:userId/:role", authSystemAdmin, async (req, res) => {
   }
 });
 
-//applying for a delivery position
-router.patch("/applyingForDelivery", auth, async (req, res) => {
+//applying for a courier position
+router.patch("/applyingForCourier", auth, async (req, res) => {
   try {
     let data = await UserModel.updateOne(
       { _id: req.tokenData._id },
-      { role: "apply_for_delivery" }
+      { role: "apply_for_courier" }
     );
     res.json(data);
   } catch (err) {
