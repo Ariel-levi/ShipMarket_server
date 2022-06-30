@@ -47,6 +47,13 @@ io.on("connection", (socket) => {
       .to(orderId)
       .emit("order_shipped", { msg: `Order number ${orderId} is on way` });
   });
+
+  socket.on("order_completed", (orderId) => {
+    console.log(`Courier with ID ${socket.id} completes order ${orderId}`);
+    socket.to(orderId).emit("order_completed", {
+      msg: `Order number ${orderId} delivered successfully`,
+    });
+  });
 });
 
 console.log("Listen on Port : " + port);
