@@ -139,6 +139,7 @@ router.put("/:idStore", authStoreAdmin, async (req, res) => {
 
 // change store status
 router.patch("/updateStatus/:idStore", authSystemAdmin, async (req, res) => {
+  req.body.address = JSON.parse(req.body.address);
   try {
     let idStore = req.params.idStore;
     let store = await StoreModel.findOne({ _id: idStore });
