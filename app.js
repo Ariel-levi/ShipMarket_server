@@ -23,7 +23,7 @@ app.use(
 corsAccessControl(app);
 routesInit(app);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3002;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
