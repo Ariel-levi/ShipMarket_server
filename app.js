@@ -23,7 +23,7 @@ app.use(
 corsAccessControl(app);
 routesInit(app);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3002;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -46,6 +46,13 @@ io.on("connection", (socket) => {
     socket
       .to(orderId)
       .emit("order_shipped", { msg: `Order number ${orderId} is on way` });
+  });
+
+  socket.on("order_completed", (orderId) => {
+    console.log(`Courier with ID ${socket.id} completes order ${orderId}`);
+    socket.to(orderId).emit("order_completed", {
+      msg: `Order number ${orderId} delivered successfully`,
+    });
   });
 });
 

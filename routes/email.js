@@ -18,7 +18,7 @@ router.post("/contact", async (req, res) => {
         .json({ msg_err: "You must send valid name ,subject and email 1" });
     }
     if (sendContactEmail(req.body)) {
-      res.json({ msg: "email sended", status: "ok" });
+      res.json({ msg: "Email sent", status: "ok" });
     } else {
       return res
         .status(400)

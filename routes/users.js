@@ -90,7 +90,7 @@ router.get("/verify-email", async (req, res) => {
       return res.status(400).json({ msg: error });
     }
   } else {
-    return res.status(400).json({ msg: "Accound has not been found" });
+    return res.status(400).json({ msg: "Accound not found" });
   }
 });
 
@@ -113,7 +113,7 @@ router.post("/", async (req, res) => {
     //email verification
     if (verifyUserEmail(user, req.headers.host)) {
       return res.status(200).json({
-        msg: "Verified email is sent to your gmail account.",
+        msg: "Verification email has been sent to your gmail account.",
         emailStatus: "ok",
         userDetails,
       });
@@ -124,7 +124,7 @@ router.post("/", async (req, res) => {
     }
   } catch (err) {
     if (err.code == 11000) {
-      return res.status(400).json({ err: "User already in system" });
+      return res.status(400).json({ err: "User is already exist" });
     }
     console.log(err);
     return res.status(500).json(err);
@@ -140,11 +140,11 @@ router.post("/login", async (req, res) => {
   try {
     let user = await UserModel.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(401).json({ err: "User not found" });
+      return res.status(401).json({ err: "User account was not found" });
     }
     let validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) {
-      return res.status(401).json({ err: "user or password is wrong" });
+      return res.status(401).json({ err: "Email or password is wrong" });
     }
     if (!user.verified) {
       return res.status(401).json({ err: "Please verify your email address" });
