@@ -34,7 +34,7 @@ exports.validateProduct = (_bodyReq) => {
     store_short_id: Joi.string().min(3).max(99).required(),
     img_url: Joi.string().min(3).max(500).allow(null, ""),
     condition: Joi.string().min(3).max(100).allow(null, ""),
-    category: Joi.string().min(2).max(100).required(),
+    category: Joi.string().min(2).max(100).allow(null, ""),
     qty: Joi.number().min(1).max(9999).allow(null, ""),
   });
   return joiSchema.validate(_bodyReq);
