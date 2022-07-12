@@ -26,7 +26,7 @@ exports.validateStore = (_bodyReq) => {
     name: Joi.string().min(2).max(150).required(),
     address: Joi.object().required(),
     info: Joi.string().min(3).max(500).required(),
-    categories: array.min(1).required(),
+    categories: array.min(1).allow(null, ""),
     img_url: Joi.string().min(3).max(500).allow(null, ""),
   });
   return joiSchema.validate(_bodyReq);
