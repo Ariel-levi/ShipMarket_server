@@ -124,12 +124,27 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-//Edit  Store
+//Edit Store
 router.put("/:idStore", authStoreAdmin, async (req, res) => {
   req.body.address = JSON.parse(req.body.address);
   try {
     let idEdit = req.params.idStore;
     let data = await StoreModel.updateOne({ _id: idEdit }, req.body);
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+//Edit Store Categories
+router.patch("/editCat/:idStore", authStoreAdmin, async (req, res) => {
+  try {
+    let idEdit = req.params.idStore;
+    let data = await StoreModel.updateOne(
+      { _id: idEdit },
+      { categories: req.body.categories }
+    );
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
