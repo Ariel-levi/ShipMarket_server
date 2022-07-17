@@ -4,6 +4,7 @@ const {
   payPalAuth,
   authSystemAdmin,
   authCourier,
+  authStoreAdmin,
 } = require("../middlewares/auth");
 const { genShortId } = require("../misc/genShortId");
 const { OrderModel, validateOrder } = require("../models/orderModel");
@@ -61,6 +62,26 @@ router.get("/allOrders", authCourier, async (req, res) => {
   }
 });
 
+router.get("/storeOrders/:idStore", authStoreAdmin, async (req, res) => {
+  let idStore = req.params.idStore;
+  try {
+    // get store short id
+    let storeShortId = await StoreModel.findOne(
+      { _id: idStore },
+      {
+        short_id: 1,
+      }
+    );
+    // get all the store orders
+    let allStoreOrders = await OrderModel.find({
+      store_short_id: storeShortId.short_id,
+    });
+    res.json(allStoreOrders);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 // get the store with the orders
 router.get("/storesWithOrders", authCourier, async (req, res) => {
   try {
@@ -90,7 +111,6 @@ router.get("/storesWithOrders", authCourier, async (req, res) => {
   }
 });
 
-// ## NEW ##
 // get order details store info and user name and email
 router.get("/deliveryInfo/:idOrder", authCourier, async (req, res) => {
   try {
@@ -123,7 +143,6 @@ router.get("/allOrdersCount", auth, async (req, res) => {
   }
 });
 
-// ?????? check
 router.get("/productsInfo/:idOrder", auth, async (req, res) => {
   try {
     let order = await OrderModel.findOne({
@@ -268,7 +287,6 @@ router.delete("/:delId", authSystemAdmin, async (req, res) => {
   }
 });
 
-// *******************************************
 //taking order by driver
 router.patch("/shipping/takingOrder", authCourier, async (req, res) => {
   let orderId = req.body.orderId;
