@@ -71,11 +71,23 @@ router.get("/search", async (req, res) => {
   }
 });
 
-//get single stores
+//get single stores by Id
 router.get("/single/:id", async (req, res) => {
   try {
     let id = req.params.id;
     let data = await StoreModel.findOne({ _id: id });
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
+
+//get single stores by store short id
+router.get("/singleShort/:shortId", async (req, res) => {
+  try {
+    let shortId = req.params.shortId;
+    let data = await StoreModel.findOne({ short_id: shortId });
     res.json(data);
   } catch (err) {
     console.log(err);
